@@ -1,40 +1,10 @@
 import { useState, useEffect } from 'react'
 import personServices from './services/persons.jsx'
-
-// Componente Filter
-const Filter = ({ value, handleChange }) => {
-  return(
-    <div>
-      filter shown with<input value={value} onChange={handleChange}/>
-    </div>
-  )
-}
-
-// Componente PersonsForm
-const PersonsForm = (props) => {
-  return(
-    <form onSubmit={props.createPerson}>
-      <div>
-        name: <input value={props.valueName} onChange={props.handleNameChange}/>
-      </div>
-      <div>number: <input value={props.valueNumber} onChange={props.handleNumberChange}/></div>
-      <div> <button type="submit">Add</button> </div>
-    </form>
-  )
-}
-
-// Componente Persons
-const Persons = ({ array, deletePerson }) => {
-  return(
-    <ul>
-        {array && array.map(person => 
-          <li key={person.id}>
-            {person.name} / {person.number}
-            <button onClick={() => deletePerson(person.id)}>delete</button>
-          </li>)}
-      </ul>
-  )
-}
+import ErrorNotification from './components/ErrorNotification.jsx'
+import SuccessNotification from './components/SuccessNotification.jsx'
+import Filter from './components/Filter.jsx'
+import PersonsForm from './components/PersonsForm.jsx'
+import Persons from './components/Persons.jsx'
 
 // Componente App
 const App = () => {
@@ -42,6 +12,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setNewFilterName] = useState('')
+  const [errorMessage, setErrorMessage] = useState()
+  const [successMessage, setSuccessMessage] = useState()
 
   // Metiendo los datos de las personas del servidor al useState([]) de App
   useEffect(() => {
@@ -52,7 +24,6 @@ const App = () => {
         setPersons(initialPersons)
       })
   }, [])
-
 
   const filterPersons =  filterName === '' ? persons : persons.filter(person => person.name.includes(filterName))
 
@@ -79,10 +50,22 @@ const App = () => {
       // response --> respuesta del servidor --> accedes a los datos de la respuesta(response)
       .then(returnedPerson => {
         console.log(returnedPerson)
-        console.log('Person added')
+        setSuccessMessage('Person added')
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 3000)
         setNewName('')
         setNewNumber('')
       })      
+      .catch(error => {
+        setErrorMessage(
+          'Person was anaible to add'
+        )
+        console.log(error)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000)
+      })
     } else {
       alert(`${newName} is already added to phonebook`)
     }
@@ -94,8 +77,21 @@ const App = () => {
       personServices
         .deleteObject(id)
         .then(deleteObject => {
+          setSuccessMessage('Person deleted')
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 3000)
           console.log('Person deleted')
           console.log(deleteObject)
+        })
+        .catch(error => {
+          setErrorMessage(
+            'Person was anaible to delete'
+          )
+          console.log(error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 3000)
         })
     } 
   }
@@ -112,10 +108,11 @@ const App = () => {
     setNewFilterName(event.target.value)
   }
 
-
   return (
     <div>
       <h2>Phonebook</h2>
+        <ErrorNotification message={errorMessage}/>
+        <SuccessNotification message={successMessage}/>
         <Filter 
         value={filterName} 
         handleChange={handleFilterChange}/>
