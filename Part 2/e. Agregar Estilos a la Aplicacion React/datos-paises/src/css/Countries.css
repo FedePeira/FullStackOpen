@@ -1,0 +1,32 @@
+/* Countries.css */
+.countries-list {
+    list-style-type: none;
+    padding:  0;
+    margin:  0;
+  }
+  
+  .country-item {
+    border:  1px solid #ccc;
+    border-radius:  4px;
+    margin-bottom:  10px;
+    padding:  10px;
+  }
+  
+  .country-name {
+    font-weight: bold;
+    font-size:  18px;
+  }
+  
+  .country-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius:  4px;
+    padding:  5px  10px;
+    cursor: pointer;
+    margin-left:  10px;
+  }
+  
+  .country-button:hover {
+    background-color: #0056b3;
+  }
