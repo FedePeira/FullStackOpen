@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import personServices from './services/persons.jsx'
+import personServices from './services/persons'
 
 // Componente Filter
 const Filter = ({ value, handleChange }) => {
