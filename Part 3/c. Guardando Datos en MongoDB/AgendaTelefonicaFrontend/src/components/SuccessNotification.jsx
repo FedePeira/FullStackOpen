@@ -1,3 +1,6 @@
+
+import PropTypes from 'prop-types';
+
 const SuccessNotification = ({ message }) => {
     const styleSuccess = {
         color: 'green',
@@ -19,4 +22,8 @@ const SuccessNotification = ({ message }) => {
     }
 }
 
-  export default SuccessNotification
+SuccessNotification.propTypes = {
+  message: PropTypes.func.isRequired,
+};
+  
+export default SuccessNotification

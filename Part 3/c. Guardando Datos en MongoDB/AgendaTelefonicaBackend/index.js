@@ -36,8 +36,8 @@ const requestPost = (request, response, next) => {
 
 app.use(express.static('dist'))
 app.use(requestLogger)
-app.use(requestPost)
 app.use(errorHandler)
+app.use(requestPost)
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')

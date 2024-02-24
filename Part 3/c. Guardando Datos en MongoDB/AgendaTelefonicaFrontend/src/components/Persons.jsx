@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Persons = ({ array, deletePerson }) => {
   return(
     <ul>
@@ -9,5 +11,10 @@ const Persons = ({ array, deletePerson }) => {
       </ul>
   )
 }
+
+Persons.propTypes = {
+  deletePerson: PropTypes.func.isRequired,
+  array: PropTypes.string.isRequired,
+};
 
 export default Persons

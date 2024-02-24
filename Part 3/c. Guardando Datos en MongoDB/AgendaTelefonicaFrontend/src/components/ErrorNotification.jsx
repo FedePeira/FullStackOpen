@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const ErrorNotification = ({ message }) => {
     const styleError = {
         color: 'red',
@@ -19,4 +21,8 @@ const ErrorNotification = ({ message }) => {
     }
 }
 
-  export default ErrorNotification
+ErrorNotification.propTypes = {
+  message: PropTypes.func.isRequired,
+};
+
+export default ErrorNotification
