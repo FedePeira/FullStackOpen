@@ -19,23 +19,11 @@ const personSchema = new mongoose.Schema({
         type: String,
         minLength: 3,
         required: true,
-        validate: {
-            validator: function(v) {
-                return v.length >=  3
-            },
-            message: props => `${props.value} no es un nombre válido. Debe tener al menos  3 caracteres.`
-        }
     },
     number: {
         type: String,
+        minLength: 8,
         required: true,
-        validate: {
-            validator: function(v) {
-                const phone = /^(\d{2,3}-\d{7,8})$/
-                return phone.test(v)
-            },
-            message: props => `${props.value} no es un número de teléfono válido. Debe tener el formato  09-1234556 o  040-22334455.`
-        }
     },
 })
 

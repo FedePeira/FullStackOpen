@@ -78,11 +78,7 @@ const App = () => {
           setNewNumber('')
         })
         .catch(error => {
-          if(error.response && error.response.data) {
-            setErrorMessage(error.response.data.error)
-          } else {
-            setErrorMessage('Error trying to create person')
-          }
+          setErrorMessage('Error trying to create person')
           setTimeout(() => {
             setErrorMessage(null)
           }, 3000)
