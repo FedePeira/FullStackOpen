@@ -1,40 +1,10 @@
 import { useState, useEffect } from 'react'
 import personServices from './services/persons'
-
-// Componente Filter
-const Filter = ({ value, handleChange }) => {
-  return(
-    <div>
-      filter shown with<input value={value} onChange={handleChange}/>
-    </div>
-  )
-}
-
-// Componente PersonsForm
-const PersonsForm = (props) => {
-  return(
-    <form onSubmit={props.createPerson}>
-      <div>
-        name: <input value={props.valueName} onChange={props.handleNameChange}/>
-      </div>
-      <div>number: <input value={props.valueNumber} onChange={props.handleNumberChange}/></div>
-      <div> <button type="submit">Add</button> </div>
-    </form>
-  )
-}
-
-// Componente Persons
-const Persons = ({ array, deletePerson }) => {
-  return(
-    <ul>
-        {array && array.map(person => 
-          <li key={person.id}>
-            {person.name} / {person.number}
-            <button onClick={() => deletePerson(person.id)}>delete</button>
-          </li>)}
-      </ul>
-  )
-}
+import Filter from './components/Filter'
+import PersonsForm from './components/PersonsForm'
+import Persons from './components/Persons'
+import ErrorNotification from './components/ErrorNotification'
+import SuccessNotification from './components/SuccessNotification'
 
 // Componente App
 const App = () => {
@@ -42,22 +12,37 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setNewFilterName] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
-  // Metiendo los datos de las personas del servidor al useState([]) de App
   useEffect(() => {
     personServices
       .getAll()
       .then(initialPersons => {
         console.log('Persons available')
-        setPersons(initialPersons)
+        setSuccessMessage('Person available')
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 3000)
+        setPersons(initialPersons)  
+      })
+      .catch(error => {
+        setErrorMessage('Error trying to get persons')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000)
+        console.error(error);
       })
   }, [])
 
-
   const filterPersons =  filterName === '' ? persons : persons.filter(person => person.name.includes(filterName))
 
-  const findPerson = ( id ) => {
-    return persons.some(person => person.id === id);
+  const findPerson = ( name ) => {
+    return persons.some(person => person.name === name);
+  }
+
+  const getPerson = ( name ) => {
+    return persons.find(person => person.name === name);
   }
 
   const createPerson = (event) => {
@@ -68,34 +53,72 @@ const App = () => {
       id: (persons.length +  1).toString()
     }
 
-    if(!findPerson(personObject.id)){
-      // Utilizamos HTTP POST para la creacion de una nueva persona
-      // Le ingresamos la url de todas las personas y le pasamos el nuevo Objeto
-      personServices
-      // POST devuelve un Promise --> Objeto que representa la finalizacion o el fracaso
-      // de una operacion asincrona
-      .create(personObject)
-      // .then() se utiliza para especificar que hacer una vez que la Promise se resuelve
-      // response --> respuesta del servidor --> accedes a los datos de la respuesta(response)
-      .then(returnedPerson => {
-        console.log(returnedPerson)
-        console.log('Person added')
-        setNewName('')
-        setNewNumber('')
-      })      
+    if(findPerson(personObject.name)){
+      const existingPerson = getPerson(personObject.name)
+      console.log(existingPerson)
+      if(existingPerson && personObject.number !== existingPerson.number){
+        if(window.confirm(`${personObject.name} is already added to phonebook, replace the old number with a new one?`)) {
+          updatePerson(existingPerson.id, personObject)
+        }
+      } else {
+        console.log(personObject)
+        alert(`${personObject.name} is already added to phonebook`)
+      }
     } else {
-      alert(`${newName} is already added to phonebook`)
+      personServices
+        .create(personObject)
+        .then(returnedPerson => {
+          console.log(returnedPerson)
+          console.log('Person added')
+          setSuccessMessage('Person created')
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 3000)
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          setErrorMessage('Error trying to create person')
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 3000)
+          console.error(error);
+        })
     }
   }
 
-  const deletePerson = (id) => {
+  const updatePerson = (id, updatedPerson) => {
+    personServices.update(id, updatedPerson)
+      .then(updatedPersonData => {
+        console.log('Person updated:', updatedPersonData);
+        setSuccessMessage('Person updated')
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 3000)
+      })
+      .catch(error => {
+        setErrorMessage('Error trying to update person')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000)
+        console.error(error);
+      })
+  }
 
+  const deletePerson = (id) => {
     if(window.confirm(`Delete ${id}`)){
       personServices
         .deleteObject(id)
         .then(deleteObject => {
           console.log('Person deleted')
           console.log(deleteObject)
+        })
+        .catch(error => {
+          setErrorMessage('Error trying to delete persons')
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 3000)
+          console.error(error);
         })
     } 
   }
@@ -112,9 +135,10 @@ const App = () => {
     setNewFilterName(event.target.value)
   }
 
-
   return (
     <div>
+      <ErrorNotification message={errorMessage}/>
+      <SuccessNotification message={successMessage}/>
       <h2>Phonebook</h2>
         <Filter 
         value={filterName} 
